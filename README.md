@@ -1,4 +1,4 @@
-<p align="center"> <a href="https://forbonestudios.com"><img src="img/NElogowhite.png" height=512 /> </a> </p>
+<p align="center"> <a href="https://forbonestudios.com"><img src="img/NElogowhite.png" height=256 /> </a> </p>
 
 # Noodle Editor
 **This editor does not have mapping features! For mapping please use [ChroMapper](https://github.com/Caeden117/ChroMapper)!**
