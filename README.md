@@ -34,4 +34,7 @@ To contribute to this project you have to clone this project into a new folder. 
  - Json data *(colorNotes)* to notes
  - Grid  *(Scrolling  1/1 - 1/64,  Beats)*
 
+# License
+
+We use the [MIT License](./LICENSE)
  
