@@ -43,6 +43,8 @@ public class ChainData
 
 public class NoteSpawner : MonoBehaviour
 {
+    private const bool V = true;
+
     // Assign this in the Unity Editor
     public GameObject notePrefab;
     public GameObject notePrefabDot;
@@ -54,6 +56,8 @@ public class NoteSpawner : MonoBehaviour
 
     // Reference to the LineGenerator to get beat positions
     public BeatGen lineGenerator;
+
+    public AudioSource hitsound;
 
     // List to store the instantiated notes
     private List<GameObject> spawnedNotes = new List<GameObject>();
@@ -346,5 +350,29 @@ public class NoteSpawner : MonoBehaviour
                 chainObject.SetActive(true);
             }
         }
+    }
+
+
+
+    void PlayNoteHitSound()
+    {
+        float SoundThreshhold = 0f; // Define your own threshold value
+
+        foreach (GameObject noteObject in spawnedNotes)
+        {
+            if (noteObject.transform.position.z == SoundThreshhold)
+            {
+                
+            }
+
+        }
+        foreach (GameObject chainObject in spawnedChains)
+        {
+            if (chainObject.transform.position.z == SoundThreshhold)
+            {
+                
+            }
+        }
+        
     }
 }
