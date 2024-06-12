@@ -7,7 +7,7 @@
 Noodle Editor as an editor that helps you create [modcharts](https://github.com/Aeroluna/Heck).
 
 We support: Noodle Extensions, Mapping Extensions and Chroma.
-You can choose how to use each feature. For example if you use Noodle Extensions you can choose between: JavaScript with/without prefabs or [Remapper](https://github.com/Swifter1243/ReMapper) by Swifter with/without prefabs.
+You can choose how to use each feature. For example if you use Noodle Extensions you can choose between: JavaScript or [Remapper](https://github.com/Swifter1243/ReMapper) by Swifter.
 
 ## Using
 To use the editor you go to [releases](https://github.com/ForBone/NoodleEditor/releases/) and download the latest release!
