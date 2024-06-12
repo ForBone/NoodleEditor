@@ -2,7 +2,6 @@
 #
 # Get latest from https://github.com/github/gitignore/blob/main/Unity.gitignore
 #
-/[Ll]ibrary/
 /[Tt]emp/
 /[Oo]bj/
 /[Bb]uild/
@@ -74,7 +73,6 @@ crashlytics-build.properties
 
 # Custom added
 bin/
-obj/
 .vscode/
 .idea/
 *.exe
