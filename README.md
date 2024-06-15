@@ -10,7 +10,7 @@ Noodle Editor is an editor that helps you create [modcharts](https://github.com/
 
 ## Using
 To use the editor you go to [releases](https://github.com/ForBone/NoodleEditor/releases/) and download the latest release!
-To launch the editor you need to build it and then open the NoodleEditor.exe, now you are ready to go make modcharts!
+To launch the editor you need locate the NoodleEditor.exe and open it, now you are ready to go make modcharts!
 
 ## About
 I started this project on June 07, 2024 with a mindset to create an easy to use editor for myself to make modcharts. Later down the road I decided to make this a project to bring out to the world to use. I made it open source so people could contribute and make this editor alot better because I am not perfect at creating one!
