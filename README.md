@@ -15,10 +15,10 @@ To use the editor you go to [releases](https://github.com/ForBone/NoodleEditor/r
 To launch the editor you need to open the NoodleEditor.exe, then you are ready to go make modcharts!
 
 ## About
-I started this project on June 07, 2024 with a mindset to create an easy to use editor for myself to make modcharts. Later down the road i decided to make this a project to bring out to the world to use. I wanted to make it open source so people could contribute and make this editor alot better because im not perfect at creating one!
+I started this project on June 07, 2024 with a mindset to create an easy to use editor for myself to make modcharts. I decided to make this a project to bring out to the world to use. I wanted to make it open source so people could contribute and make this editor alot better because im not perfect at creating one!
 
 ## Contributing
-To contribute to this project you have to clone this project into a new folder. Then open the cloned project in unity hub with unity version 2022.3.25f1. Your fully welcome to make pull requests with changes, we might add it to the editor!
+To contribute to this project you have to clone this project into a new folder. Then open the cloned project in unity hub with unity version 2022.3.40f1. Your fully welcome to make pull requests with changes, we might add it to the editor!
 
 ## Roadmap 
 **Need to add:**
