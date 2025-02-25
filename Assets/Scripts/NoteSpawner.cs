@@ -43,6 +43,7 @@ public class ChainData
 
 public class NoteSpawner : MonoBehaviour
 {
+    public GameObject notesParent; // Assign this in the Inspector
     private const bool V = true;
 
     // Assign this in the Unity Editor
@@ -60,56 +61,53 @@ public class NoteSpawner : MonoBehaviour
     public AudioSource hitsound;
 
     // List to store the instantiated notes
-    private List<GameObject> spawnedNotes = new List<GameObject>();
-    private List<GameObject> spawnedChains = new List<GameObject>();
+    public List<GameObject> spawnedNotes = new List<GameObject>();
+    public List<GameObject> spawnedChains = new List<GameObject>();
 
     // JSON data as a string
-    private string jsonData = @"
+    public JsonData jsonDataInstance;
+    public string jsonData;
+
+void Start()
+{
+    jsonData = jsonDataInstance.jsonData;
+
+    // Parse the JSON data
+    NoteData noteData = JsonUtility.FromJson<NoteData>(jsonData);
+    ChainData chainData = JsonUtility.FromJson<ChainData>(jsonData);
+
+    // Determine the highest beat value
+    int highestBeat = 0;
+    foreach (Note note in noteData.colorNotes)
     {
-                      ""burstSliders"":[{""b"":2,""c"":1,""x"":1,""y"":1,""d"":6,""tb"":2.5,""tx"":0,""ty"":0,""sc"":4,""s"":1}]
-    }";
-
-    void Start()
-    {
-        // Parse the JSON data
-        NoteData noteData = JsonUtility.FromJson<NoteData>(jsonData);
-        ChainData chainData = JsonUtility.FromJson<ChainData>(jsonData);
-
-        Console.WriteLine(chainData);
-
-        // Determine the highest beat value
-        int highestBeat = 0;
-        foreach (Note note in noteData.colorNotes)
+        if (note.b > highestBeat)
         {
-            if (note.b > highestBeat)
-            {
-                highestBeat = Mathf.CeilToInt(note.b);
-            }
-        }
-
-        foreach (Chain chain in chainData.burstSliders)
-        {
-            if (chain.b > highestBeat)
-            {
-                highestBeat = Mathf.CeilToInt(chain.b);
-            }
-        }
-
-        // Generate line positions up to the highest beat value
-        lineGenerator.GenerateLine(highestBeat);
-
-        // Loop through each note and create a corresponding GameObject
-        foreach (Note note in noteData.colorNotes)
-        {
-            CreateNoteObject(note);
-        }
-
-        foreach (Chain chain in chainData.burstSliders)
-        {
-            CreateChainObject(chain);
-            
+            highestBeat = Mathf.CeilToInt(note.b);
         }
     }
+
+    foreach (Chain chain in chainData.burstSliders)
+    {
+        if (chain.b > highestBeat)
+        {
+            highestBeat = Mathf.CeilToInt(chain.b);
+        }
+    }
+
+    // Generate line positions up to the highest beat value
+    lineGenerator.GenerateLine(highestBeat);
+
+    // Loop through each note and create a corresponding GameObject
+    foreach (Note note in noteData.colorNotes)
+    {
+        CreateNoteObject(note);
+    }
+
+    foreach (Chain chain in chainData.burstSliders)
+    {
+        CreateChainObject(chain);
+    }
+}
 
     void CreateNoteObject(Note note)
     {
@@ -127,121 +125,126 @@ public class NoteSpawner : MonoBehaviour
     }
 
     GameObject InstantiateNoteAtPosition(Note note)
+{
+    int x = 0, y = 0, z = 0;
+    if (note.d == 0) { z = 180; }
+    if (note.d == 1) { z = 0; }
+    if (note.d == 2) { z = 270; }
+    if (note.d == 3) { z = 90; }
+    if (note.d == 4) { z = 225; }
+    if (note.d == 5) { z = 135; }
+    if (note.d == 6) { z = -45; }
+    if (note.d == 7) { z = 45; }
+
+    Quaternion q = Quaternion.Euler(x, y, z);
+
+    // Find the corresponding beat positions for interpolation
+    Vector3 beatPositionStart = Vector3.zero;
+    Vector3 beatPositionEnd = Vector3.zero;
+    if (lineGenerator != null)
     {
-        int x = 0, y = 0, z = 0;
-        if (note.d == 0) { z = 180; }
-        if (note.d == 1) { z = 0; }
-        if (note.d == 2) { z = 270; }
-        if (note.d == 3) { z = 90; }
-        if (note.d == 4) { z = 225; }
-        if (note.d == 5) { z = 135; }
-        if (note.d == 6) { z = -45; }
-        if (note.d == 7) { z = 45; }
+        int startIndex = Mathf.FloorToInt(note.b);
+        int endIndex = Mathf.CeilToInt(note.b);
 
-        Quaternion q = Quaternion.Euler(x, y, z);
-
-        // Find the corresponding beat positions for interpolation
-        Vector3 beatPositionStart = Vector3.zero;
-        Vector3 beatPositionEnd = Vector3.zero;
-        if (lineGenerator != null)
+        if (startIndex < lineGenerator.beatPositions.Count)
         {
-            int startIndex = Mathf.FloorToInt(note.b);
-            int endIndex = Mathf.CeilToInt(note.b);
-
-            if (startIndex < lineGenerator.beatPositions.Count)
-            {
-                beatPositionStart = lineGenerator.beatPositions[startIndex];
-            }
-            if (endIndex < lineGenerator.beatPositions.Count)
-            {
-                beatPositionEnd = lineGenerator.beatPositions[endIndex];
-            }
+            beatPositionStart = lineGenerator.beatPositions[startIndex];
         }
-
-        // Interpolate between the start and end positions
-        float t = note.b - Mathf.Floor(note.b);
-        Vector3 beatPosition = Vector3.Lerp(beatPositionStart, beatPositionEnd, t);
-
-        // Offset the note position based on x and y
-        Vector3 notePosition = beatPosition + new Vector3((float)(note.x - 1.5), (float)(note.y + 0.4), 0);
-
-        GameObject noteObj = notePrefab;
-        if (note.d == 8) { noteObj = notePrefabDot; }
-        if (note.c == 0) { noteObj.GetComponentInChildren<MeshRenderer>().material = red; }
-        if (note.c == 1) { noteObj.GetComponentInChildren<MeshRenderer>().material = blue; }
-
-        return Instantiate(noteObj, notePosition, q);
+        if (endIndex < lineGenerator.beatPositions.Count)
+        {
+            beatPositionEnd = lineGenerator.beatPositions[endIndex];
+        }
     }
-    GameObject InstantiateChainAtPosition(Chain chain)
+
+    // Interpolate between the start and end positions
+    float t = note.b - Mathf.Floor(note.b);
+    Vector3 beatPosition = Vector3.Lerp(beatPositionStart, beatPositionEnd, t);
+
+    // Offset the note position based on x and y
+    Vector3 notePosition = beatPosition + new Vector3((float)(note.x - 1.5), (float)(note.y + 0.4), 0);
+
+    GameObject noteObj = notePrefab;
+    if (note.d == 8) { noteObj = notePrefabDot; }
+    if (note.c == 0) { noteObj.GetComponentInChildren<MeshRenderer>().material = red; }
+    if (note.c == 1) { noteObj.GetComponentInChildren<MeshRenderer>().material = blue; }
+
+    GameObject noteInstance = Instantiate(noteObj, notePosition, q);
+    noteInstance.transform.parent = notesParent.transform; // Set the parent
+    return noteInstance;
+}
+
+GameObject InstantiateChainAtPosition(Chain chain)
+{
+    int x = -90, y = -90, z = 90;
+    if (chain.d == 0) { x += 180; }
+    if (chain.d == 1) { x += 0; }
+    if (chain.d == 2) { x += 270; }
+    if (chain.d == 3) { x += 90; }
+    if (chain.d == 4) { x += 225; }
+    if (chain.d == 5) { x += 135; }
+    if (chain.d == 6) { x += -45; }
+    if (chain.d == 7) { x += 45; }
+
+    Quaternion q = Quaternion.Euler(x, y, z);
+
+    // Find the corresponding beat positions for interpolation
+    Vector3 beatPositionStart = Vector3.zero;
+    Vector3 beatPositionEnd = Vector3.zero;
+    if (lineGenerator != null)
     {
-        int x = -90, y = -90, z = 90;
-        if (chain.d == 0) { x += 180; }
-        if (chain.d == 1) { x += 0; }
-        if (chain.d == 2) { x += 270; }
-        if (chain.d == 3) { x += 90; }
-        if (chain.d == 4) { x += 225; }
-        if (chain.d == 5) { x += 135; }
-        if (chain.d == 6) { x += -45; }
-        if (chain.d == 7) { x += 45; }
+        int startIndex = Mathf.FloorToInt(chain.b);
+        int endIndex = Mathf.CeilToInt(chain.b);
 
-        Quaternion q = Quaternion.Euler(x, y, z);
-
-        // Find the corresponding beat positions for interpolation
-        Vector3 beatPositionStart = Vector3.zero;
-        Vector3 beatPositionEnd = Vector3.zero;
-        if (lineGenerator != null)
+        if (startIndex < lineGenerator.beatPositions.Count)
         {
-            int startIndex = Mathf.FloorToInt(chain.b);
-            int endIndex = Mathf.CeilToInt(chain.b);
-
-            if (startIndex < lineGenerator.beatPositions.Count)
-            {
-                beatPositionStart = lineGenerator.beatPositions[startIndex];
-            }
-            if (endIndex < lineGenerator.beatPositions.Count)
-            {
-                beatPositionEnd = lineGenerator.beatPositions[endIndex];
-            }
+            beatPositionStart = lineGenerator.beatPositions[startIndex];
         }
-
-        // Interpolate between the start and end positions
-        float t = chain.b - Mathf.Floor(chain.b);
-        Vector3 beatPosition = Vector3.Lerp(beatPositionStart, beatPositionEnd, t);
-
-        // Offset the note position based on x and y
-        Vector3 chainPosition = beatPosition + new Vector3((float)(chain.x - 1.5), (float)(chain.y + 0.4), 0);
-
-        GameObject chainObj = noteHalf;
-        if (chain.d == 8) { chainObj = noteHalfDot; }
-        if (chain.c == 0) { chainObj.GetComponentInChildren<MeshRenderer>().material = red; }
-        if (chain.c == 1) { chainObj.GetComponentInChildren<MeshRenderer>().material = blue; }
-
-        return Instantiate(chainObj, chainPosition, q);
+        if (endIndex < lineGenerator.beatPositions.Count)
+        {
+            beatPositionEnd = lineGenerator.beatPositions[endIndex];
+        }
     }
+
+    // Interpolate between the start and end positions
+    float t = chain.b - Mathf.Floor(chain.b);
+    Vector3 beatPosition = Vector3.Lerp(beatPositionStart, beatPositionEnd, t);
+
+    // Offset the note position based on x and y
+    Vector3 chainPosition = beatPosition + new Vector3((float)(chain.x - 1.5), (float)(chain.y + 0.4), 0);
+
+    GameObject chainObj = noteHalf;
+    if (chain.d == 8) { chainObj = noteHalfDot; }
+    if (chain.c == 0) { chainObj.GetComponentInChildren<MeshRenderer>().material = red; }
+    if (chain.c == 1) { chainObj.GetComponentInChildren<MeshRenderer>().material = blue; }
+
+    GameObject chainInstance = Instantiate(chainObj, chainPosition, q);
+    chainInstance.transform.parent = notesParent.transform; // Set the parent
+    return chainInstance;
+}
 
     void Update()
+{
+    // Check for scroll input
+    float scroll = -Input.GetAxis("Mouse ScrollWheel");
+    if (scroll != 0)
     {
-        // Check for scroll input
-        float scroll = -Input.GetAxis("Mouse ScrollWheel");
-        if (scroll != 0)
+        if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
         {
-            if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
-            {
-                // Change snap interval with Ctrl + Scroll
-                lineGenerator.SetSnapInterval(lineGenerator.SnapInterval + (scroll > 0 ? 0.1f : -0.1f));
-            }
-            else
-            {
-                lineGenerator.ScrollBeats(scroll);
-                UpdateNotePositions();
-                UpdateChainPositions();
-                UpdateNoteVisibility();
-                UpdateChainVisibility();
-            }
+            // Change snap interval with Ctrl + Scroll
+            lineGenerator.SetSnapInterval(lineGenerator.SnapInterval + (scroll > 0 ? 0.1f : -0.1f));
+        }
+        else
+        {
+            lineGenerator.ScrollBeats(scroll);
+            UpdateNotePositions();
+            UpdateChainPositions();
+            UpdateNoteVisibility();
+            UpdateChainVisibility();
         }
     }
+}
 
-    void UpdateNotePositions()
+    public void UpdateNotePositions()
     {
         foreach (GameObject noteObject in spawnedNotes)
         {
@@ -249,7 +252,7 @@ public class NoteSpawner : MonoBehaviour
             UpdateNotePosition(noteObject, note);
         }
     }
-    void UpdateChainPositions()
+    public void UpdateChainPositions()
     {
         foreach (GameObject chainObject in spawnedChains)
         {
@@ -257,7 +260,7 @@ public class NoteSpawner : MonoBehaviour
             UpdateChainPosition(chainObject, chain);
         }
     }
-    void UpdateChainPosition(GameObject chainObject, Chain chain)
+    public void UpdateChainPosition(GameObject chainObject, Chain chain)
     {
         // Find the corresponding beat positions for interpolation
         Vector3 beatPositionStart = Vector3.zero;
@@ -287,35 +290,45 @@ public class NoteSpawner : MonoBehaviour
         chainObject.transform.position = chainPosition;
     }
 
-    void UpdateNotePosition(GameObject noteObject, Note note)
+    public void UpdateNotePosition(GameObject noteObject, Note note)
+{
+    if (lineGenerator == null)
     {
-        // Find the corresponding beat positions for interpolation
-        Vector3 beatPositionStart = Vector3.zero;
-        Vector3 beatPositionEnd = Vector3.zero;
-        if (lineGenerator != null)
-        {
-            int startIndex = Mathf.FloorToInt(note.b);
-            int endIndex = Mathf.CeilToInt(note.b);
-
-            if (startIndex < lineGenerator.beatPositions.Count)
-            {
-                beatPositionStart = lineGenerator.beatPositions[startIndex];
-            }
-            if (endIndex < lineGenerator.beatPositions.Count)
-            {
-                beatPositionEnd = lineGenerator.beatPositions[endIndex];
-            }
-        }
-
-        // Interpolate between the start and end positions
-        float t = note.b - Mathf.Floor(note.b);
-        Vector3 beatPosition = Vector3.Lerp(beatPositionStart, beatPositionEnd, t);
-
-        // Offset the note position based on x and y
-        Vector3 notePosition = beatPosition + new Vector3((float)(note.x - 1.5), (float)(note.y + 0.4), 0);
-
-        noteObject.transform.position = notePosition;
+        Debug.LogError("lineGenerator is not assigned!");
+        return;
     }
+
+    if (lineGenerator.beatPositions.Count == 0)
+    {
+        Debug.LogError("beatPositions is empty!");
+        return;
+    }
+
+    // Find the corresponding beat positions for interpolation
+    Vector3 beatPositionStart = Vector3.zero;
+    Vector3 beatPositionEnd = Vector3.zero;
+
+    int startIndex = Mathf.FloorToInt(note.b);
+    int endIndex = Mathf.CeilToInt(note.b);
+
+    if (startIndex < lineGenerator.beatPositions.Count)
+    {
+        beatPositionStart = lineGenerator.beatPositions[startIndex];
+    }
+    if (endIndex < lineGenerator.beatPositions.Count)
+    {
+        beatPositionEnd = lineGenerator.beatPositions[endIndex];
+    }
+
+    // Interpolate between the start and end positions
+    float t = note.b - Mathf.Floor(note.b);
+    Vector3 beatPosition = Vector3.Lerp(beatPositionStart, beatPositionEnd, t);
+
+    // Offset the note position based on x and y
+    Vector3 notePosition = beatPosition + new Vector3((float)(note.x - 1.5), (float)(note.y + 0.4), 0);
+
+    noteObject.transform.position = notePosition;
+}
 
     void UpdateNoteVisibility()
     {
@@ -353,10 +366,9 @@ public class NoteSpawner : MonoBehaviour
     }
 
 
-
-    void PlayNoteHitSound()
+    public void PlayNoteHitSound()
     {
-        float SoundThreshhold = 0f; // Define your own threshold value
+        float SoundThreshhold = 1f; // Define your own threshold value
 
         foreach (GameObject noteObject in spawnedNotes)
         {

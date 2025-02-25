@@ -4,6 +4,10 @@ using TMPro;
 
 public class BeatGen : MonoBehaviour
 {
+
+    public GameObject beatsParent;  // Parent object to hold the beat objects
+
+    public float CurrentBeatPosition { get; set; }
     public GameObject prefab;  // The prefab to instantiate
     public GameObject beatNumberPrefab;  // The prefab for the beat number
     public float distanceBetweenPrefabs = 2.0f;  // Distance between each prefab
@@ -21,34 +25,41 @@ public class BeatGen : MonoBehaviour
     }
 
     // Method to generate line up to a specific number of beats
-    public void GenerateLine(int numberOfBeats)
+public void GenerateLine(int numberOfBeats)
+{
+    ClearBeats();
+
+    beatPositions.Clear();
+    for (int i = 0; i <= numberOfBeats; i++)
     {
-        ClearBeats();
+        // Calculate the position for the new prefab
+        Vector3 position = startPosition + new Vector3(0, 0, i * distanceBetweenPrefabs);
 
-        beatPositions.Clear();
-        for (int i = 0; i <= numberOfBeats; i++)
-        {
-            // Calculate the position for the new prefab
-            Vector3 position = startPosition + new Vector3(0, 0, i * distanceBetweenPrefabs);
+        // Instantiate the prefab at the calculated position
+        GameObject beat = Instantiate(prefab, position, Quaternion.identity);
 
-            // Instantiate the prefab at the calculated position
-            GameObject beat = Instantiate(prefab, position, Quaternion.identity);
-            instantiatedBeats.Add(beat);
+        // Set the parent of the beat to beatsParent
+        beat.transform.SetParent(beatsParent.transform, false);
 
-            // Add the position to the list of beat positions
-            beatPositions.Add(position);
+        instantiatedBeats.Add(beat);
 
-            // Instantiate the beat number prefab
-            Quaternion beatq = Quaternion.Euler(90, 0, 0);
-            Vector3 numberPosition = position + new Vector3((float)2.5, 0, 0);  // Offset to place the number to the side
-            GameObject beatNumber = Instantiate(beatNumberPrefab, numberPosition, beatq);
-            instantiatedBeatNumbers.Add(beatNumber);
+        // Add the position to the list of beat positions
+        beatPositions.Add(position);
 
-            // Set the text of the beat number
-            beatNumber.GetComponent<TextMeshPro>().text = i.ToString();
-        }
+        // Instantiate the beat number prefab
+        Quaternion beatq = Quaternion.Euler(90, 0, 0);
+        Vector3 numberPosition = position + new Vector3((float)2.5, 0, 0);  // Offset to place the number to the side
+        GameObject beatNumber = Instantiate(beatNumberPrefab, numberPosition, beatq);
+
+        // Set the parent of the beatNumber to the beat
+        beatNumber.transform.SetParent(beatsParent.transform, false);
+
+        instantiatedBeatNumbers.Add(beatNumber);
+
+        // Set the text of the beat number
+        beatNumber.GetComponent<TextMeshPro>().text = i.ToString();
     }
-
+}
     // Method to clear previously instantiated beats and beat numbers
     private void ClearBeats()
     {
