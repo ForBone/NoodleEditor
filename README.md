@@ -2,17 +2,18 @@
 <p align="center"> <a href="https://forbonestudios.com"><img src="img/ne.png" height=256 /> </a> </p>
 
 # Noodle Editor
-**This editor does not have mapping features! For mapping please use [ChroMapper](https://github.com/Caeden117/ChroMapper)!**
+**This editor does not have mapping features! For mapping please use [ChroMapper](https://github.com/Caeden117/ChroMapper) or another editor of your choice!**
 
 ## The Editor
-Noodle Editor as an editor that helps you create [modcharts](https://github.com/Aeroluna/Heck).
+Noodle Editor as an editor that helps you create [modhcarts](https://github.com/Aeroluna/Heck).
 
-We support: Noodle Extensions, Mapping Extensions and Chroma.
-You can choose how to use each feature. For example if you use Noodle Extensions you can choose between: JavaScript or [Remapper](https://github.com/Swifter1243/ReMapper) by Swifter.
+We support: Noodle Extensions and Chroma (Might add Vivify later).
+You can choose how to use each feature. For example if you use Noodle Extensions you can choose between: JavaScript or [Hecklib](https://github.com/Heck-Library/HeckLib) by Jevk.
 
 ## Using
-To use the editor you go to [releases](https://github.com/ForBone/NoodleEditor/releases/) and download the latest release!
-To launch the editor you need to open the NoodleEditor.exe, then you are ready to go make modcharts!
+~~To use the editor you go to [releases](https://github.com/ForBone/NoodleEditor/releases/) and download the latest release!
+To launch the editor you need to open the NoodleEditor.exe, then you are ready to go make modcharts!~~
+There are no releases available at this moment.
 
 ## About
 I started this project on June 07, 2024 with a mindset to create an easy to use editor for myself to make modcharts. I decided to make this a project to bring out to the world to use. I wanted to make it open source so people could contribute and make this editor alot better because im not perfect at creating one!
@@ -23,7 +24,7 @@ To contribute to this project you have to clone this project into a new folder. 
 ## Roadmap 
 **Need to add:**
 
- - Remapper support
+ - Hecklib support
  - Noodle extensions support
  - Chroma support
  - Map loading *(.dat difficulity files, song.ogg, cover.png)*
